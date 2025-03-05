@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { AiFillDelete } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-import {
-  IoAddCircleOutline,
-  IoTrash,
-  IoImage,
-  IoOptions,
-} from "react-icons/io5";
+import { motion } from "framer-motion";
+import { Button, Input, Select, Upload, Card, Typography, Space, notification } from "antd";
+import { IoAddCircleOutline, IoTrash } from "react-icons/io5";
+import { AiFillDelete, AiOutlineUpload } from "react-icons/ai";
+import { UploadOutlined } from "@ant-design/icons";
 import Navbar from "../navbar/Navbar";
+
+const { Title, Text } = Typography;
+const { Option } = Select;
 
 export default function QuestionForm() {
   const [questions, setQuestions] = useState([]);
   const [title, setTitle] = useState("");
+  const navigate = useNavigate();
 
+  // Adds a new question
   const addQuestion = () => {
     setQuestions([
       ...questions,
@@ -30,245 +33,190 @@ export default function QuestionForm() {
     ]);
   };
 
+  // Updates a question field
   const updateQuestion = (id, key, value) => {
     setQuestions(
       questions.map((q) => (q.id === id ? { ...q, [key]: value } : q))
     );
   };
 
+  // Updates an option field
   const updateOption = (id, index, value) => {
     setQuestions(
       questions.map((q) =>
-        q.id === id
-          ? {
-              ...q,
-              options: q.options.map((opt, i) => (i === index ? value : opt)),
-            }
-          : q
+        q.id === id ? { ...q, options: q.options.map((opt, i) => (i === index ? value : opt)) } : q
       )
     );
   };
 
+  // Adds an option to a question
   const addOption = (id) => {
     setQuestions(
+      questions.map((q) => (q.id === id ? { ...q, options: [...q.options, ""] } : q))
+    );
+  };
+
+  // Removes an option
+  const removeOption = (id, index) => {
+    setQuestions(
       questions.map((q) =>
-        q.id === id ? { ...q, options: [...q.options, ""] } : q
+        q.id === id ? { ...q, options: q.options.filter((_, i) => i !== index) } : q
       )
     );
   };
 
+  // Updates the correct answer
   const updateCorrectAnswers = (id, value) => {
     setQuestions(
       questions.map((q) =>
-        q.id === id
-          ? { ...q, correct: value.split(",").map((ans) => ans.trim()) }
-          : q
+        q.id === id ? { ...q, correct: value.split(",").map((ans) => ans.trim()) } : q
       )
     );
   };
 
+  // Removes a question
   const removeQuestion = (id) => {
     setQuestions(questions.filter((q) => q.id !== id));
   };
 
+  // Handles form submission
   const handleSubmit = async () => {
-    console.log(questions);
     const payload = {
-      title,
       questions,
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:5173/submit",
-        questions,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await axios.post("https://codecanvasapi.nuke.co.in/api/admin/auth/questions", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      notification.success({
+        message: 'Form Submitted',
+        description: 'Form submitted successfully!',
+      });
       console.log("Form submitted successfully:", response.data);
     } catch (error) {
+      notification.error({
+        message: 'Submission Failed',
+        description: 'Error submitting form.',
+      });
       console.error("Error submitting form:", error);
     }
-  };
-
-  const removeOption = (id, index) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === id
-          ? { ...q, options: q.options.filter((_, i) => i !== index) }
-          : q
-      )
-    );
   };
 
   return (
     <>
       <Navbar />
-      <div className="p-6 w-full max-w-5xl mx-auto space-y-6 bg-gray-100">
-        <div className="p-4 w-full max-w-4xl mx-auto space-y-6 mt-8">
-          {/* <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter Form Title"
-            className="w-full p-2 border rounded-md"
-          /> */}
+      <div className="p-6 w-full max-w-5xl mx-auto space-y-6 shadow-2xl shadow-blue-100 mt-8">
+        <motion.div
+          className="p-4 w-full max-w-4xl mx-auto space-y-6 mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Title level={6}>Create Your Question Form</Title>
 
           {questions.map((q) => (
-            <div key={q.id} className="p-9  rounded-lg shadow-lg bg-white  ">
-              <h2 className="mt-2 font-bold mb-4">
-                Title (Technical, Reasoning, Aptitute)
-              </h2>
-              <input
-                type="text"
-                value={q.title}
-                onChange={(e) => updateQuestion(q.id, "title", e.target.value)}
-                placeholder="Enter Question Title"
-                className="w-full p-2 border rounded-lg bg-white"
-              />
-              <h2 className="mt-4 font-bold mb-4 ">
-                Problem Level (Easy, Hard and Normal)
-              </h2>
-              <select
-                value={q.problem}
-                onChange={(e) =>
-                  updateQuestion(q.id, "problem", e.target.value)
-                }
-                className="w-full md:w-6/12 p-2 border rounded-md bg-white"
-              >
-                <option value="Easy">Easy</option>
-                <option value="Normal">Normal</option>
-                <option value="Hard">Hard</option>
-              </select>
-              score:
-              <input
-                type="number"
-                value={q.score}
-                onChange={(e) => updateQuestion(q.id, "score", e.target.value)}
-                placeholder="Score"
-                className="w-full md:w-1/3 md:ml-22  p-2 border rounded-md bg-white"
-              />
-              <h2 className="mt-4 font-bold mb-4 ">Enter your question</h2>
-              <textarea
-                value={q.question}
-                onChange={(e) =>
-                  updateQuestion(q.id, "question", e.target.value)
-                }
-                placeholder="Enter Question"
-                className="w-full h-40 mt-4 p-2 border rounded-md bg-white"
-              />
-              <div className="flex flex-col md:flex-row justify-start items-center gap-6">
-                <input
-                  type="file"
-                  onChange={(e) =>
-                    updateQuestion(
-                      q.id,
-                      "image",
-                      URL.createObjectURL(e.target.files[0])
-                    )
-                  }
-                  className="mt-4 w-7/12 p-4 rounded-lg bg-blue-300 cursor-pointer"
+            <Card key={q.id} className="shadow-md">
+              <Space direction="vertical"  size="middle" className="w-full">
+                <Title level={5}>Title (Technical, Reasoning, Aptitude)</Title>
+                <Input
+                  value={q.title}
+                  onChange={(e) => updateQuestion(q.id, "title", e.target.value)}
+                  placeholder="Enter Question Title"
                 />
-                <img
-                  src={
-                    q.image ||
-                    "https://plus.unsplash.com/premium_photo-1741005641996-f0e15c7c276b?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw2fHx8ZW58MHx8fHx8"
-                  }
-                  alt="Uploaded Preview"
-                  className="mt-2  md:ml-0 w-48 h-32 object-cover  rounded-lg overflow-hidden"
-                />
-              </div>
-              <h2 className="mt-4 font-bold mb-4 ">
-                {" "}
-                Answer type (Multiple choice, checkboxes, Paragraph)
-              </h2>
-              <select
-                value={q.type}
-                onChange={(e) => updateQuestion(q.id, "type", e.target.value)}
-                className="w-full
-                 p-2 border rounded-md bg-white"
-              >
-                <option value="single">Multiple Choice</option>
-                <option value="multiple">Checkboxes</option>
-                <option value="paragraph">Paragraph</option>
-              </select>
-              {q.type === "paragraph" && (
-                <textarea
-                  value={q.paragraphAnswer}
-                  onChange={(e) =>
-                    updateQuestion(q.id, "paragraphAnswer", e.target.value)
-                  }
-                  placeholder="Enter Paragraph Answer"
-                  className="w-full p-2 border rounded-md mt-2 bg-white"
-                />
-              )}
-              {q.type !== "paragraph" &&
-                q.options.map((option, index) => (
-                  <div key={index} className="flex items-center mt-2">
-                    <input
-                      type="text"
-                      value={option}
-                      onChange={(e) =>
-                        updateOption(q.id, index, e.target.value)
-                      }
-                      placeholder="Enter Option"
-                      className="w-full p-2 border rounded-md bg-white"
-                    />
-                    <button
-                      onClick={() => removeOption(q.id, index)}
-                      className="ml-2 text-red-500"
-                    >
-                      <AiFillDelete size={20} />
-                    </button>
-                  </div>
-                ))}
-              {q.type !== "paragraph" && (
-                <button
-                  onClick={() => addOption(q.id)}
-                  className="text-blue-500 mt-2 flex items-center cursor-pointer"
+
+                <Title level={5}>Problem Level</Title>
+                <Select
+                  value={q.problem}
+                  onChange={(value) => updateQuestion(q.id, "problem", value)}
+                  className="w-full md:w-1/2"
                 >
-                  <IoAddCircleOutline className="mr-1 cursor-pointer" /> Add
-                  Option
-                </button>
-              )}
-              <h2 className="mt-4 font-bold mb-4 ">
-                {" "}
-                Add Your Answer (comma separated for multiple answers)
-              </h2>
-              <input
-                type="text"
-                value={q.correct.join(", ")}
-                onChange={(e) => updateCorrectAnswers(q.id, e.target.value)}
-                placeholder="Enter Correct Answer(s)"
-                className="w-full p-2 border rounded-md bg-white"
-              />
-              <button
-                onClick={() => removeQuestion(q.id)}
-                className="text-red-500 mt-2 flex items-center cursor-pointer"
-              >
-                <IoTrash className="mr-1 cursor-pointer" /> Remove Question
-              </button>
-            </div>
+                  <Option value="Easy">Easy</Option>
+                  <Option value="Normal">Normal</Option>
+                  <Option value="Hard">Hard</Option>
+                </Select>
+
+                <Title level={5}>Score</Title>
+                <Input
+                  type="number"
+                  value={q.score}
+                  onChange={(e) => updateQuestion(q.id, "score", e.target.value)}
+                  placeholder="Score"
+                />
+
+                <Title level={5}>Enter Your Question</Title>
+                <Input.TextArea
+                  value={q.question}
+                  onChange={(e) => updateQuestion(q.id, "question", e.target.value)}
+                  placeholder="Enter Question"
+                  rows={4}
+                />
+
+                <Title level={5}>Upload Image (Optional)</Title>
+                <Upload
+                  showUploadList={false}
+                  beforeUpload={(file) => {
+                    const url = URL.createObjectURL(file);
+                    updateQuestion(q.id, "image", url);
+                    return false;
+                  }}
+                >
+                  <Button icon={<UploadOutlined />}>Upload Image</Button>
+                </Upload>
+                {q.image && <img src={q.image} alt="Preview" className="w-48 h-32 rounded-lg" />}
+
+                <Title level={5}>Answer Type</Title>
+                <Select
+                  value={q.type}
+                  onChange={(value) => updateQuestion(q.id, "type", value)}
+                  className="w-full"
+                >
+                  <Option value="single">Multiple Choice</Option>
+                  <Option value="multiple">Checkboxes</Option>
+                  <Option value="paragraph">Paragraph</Option>
+                </Select>
+
+                {q.type !== "paragraph" &&
+                  q.options.map((option, index) => (
+                    <Space key={index} className="w-full">
+                      <Input
+                        value={option}
+                        onChange={(e) => updateOption(q.id, index, e.target.value)}
+                        placeholder="Enter Option"
+                      />
+                      <Button danger icon={<AiFillDelete />} onClick={() => removeOption(q.id, index)} />
+                    </Space>
+                  ))}
+
+                {q.type !== "paragraph" && (
+                  <Button type="dashed" icon={<IoAddCircleOutline />} onClick={() => addOption(q.id)}>
+                    Add Option
+                  </Button>
+                )}
+
+                <Title level={5}>Correct Answer(s)</Title>
+                <Input
+                  value={q.correct.join(", ")}
+                  onChange={(e) => updateCorrectAnswers(q.id, e.target.value)}
+                  placeholder="Comma-separated answers"
+                />
+
+                <Button type="primary" danger icon={<IoTrash />} onClick={() => removeQuestion(q.id)}>
+                  Remove Question
+                </Button>
+              </Space>
+            </Card>
           ))}
 
-          <button
-            onClick={addQuestion}
-            className="bg-green-500 text-white p-2 rounded-md flex items-center w-full md:w-auto"
-          >
-            <IoAddCircleOutline className="mr-1" /> Add New Question
-          </button>
+          <Button type="primary" icon={<IoAddCircleOutline />} onClick={addQuestion}>
+            Add New Question
+          </Button>
 
-          <button
-            onClick={handleSubmit}
-            className="bg-blue-500 text-white p-2 rounded-md flex items-center w-full md:w-auto mt-4"
-          >
+          <Button type="primary" className="mt-4 ml-4" onClick={handleSubmit}>
             Submit Form
-          </button>
-        </div>
+          </Button>
+        </motion.div>
       </div>
     </>
   );

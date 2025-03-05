@@ -17,7 +17,7 @@ function App() {
         <Route path="/studentMarks" exact element={<StudentMarks />} />
         <Route path="/questionForm" exact element={<QuestionForm />} />
         <Route path="/signup" exact element={<Signup />} />
-        <Route path="/courses" exact element={<Courses />} />
+        <Route path="/" exact element={<Courses />} />
       </Routes>
     </>
   );
