@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Modal, Typography, Spin, message, Input } from "antd";
+import Navbar from "../../components/navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
+const studentAnswerSheet = import.meta.env.STUDENT_ANSWER_SHEET_API;
 
 export default function StudentMarks() {
   const [studentData, setStudentData] = useState([]);
@@ -10,7 +13,10 @@ export default function StudentMarks() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const navigate = useNavigate();
+
   useEffect(() => {
+    // console.log("first");
     const getData = async () => {
       try {
         const response = await axios.get("https://api.nuke.co.in/students");
@@ -73,7 +79,11 @@ export default function StudentMarks() {
       title: "Student",
       dataIndex: "student",
       key: "student",
-      render: (text) => <Text strong className="text-lg">{text}</Text>, // Bold Enrollment ID ✅
+      render: (text) => (
+        <Text strong className="text-lg">
+          {text}
+        </Text>
+      ), // Bold Enrollment ID ✅
     },
     {
       title: "Obtained Marks",
@@ -88,40 +98,54 @@ export default function StudentMarks() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-md">
-      <Title level={2} className="mb-6">Student Marks Summary</Title>
-
-      {/* Search Input */}
-      <Input.Search
-        placeholder="Search by Enrollment ID"
-        allowClear
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 w-full md:w-1/2"
-      />
-
-      {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <Spin size="large" />
+    <>
+      <Navbar />
+      <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-md">
+        <div className="flex justify-between">
+          {" "}
+          <Title level={2} className="mb-6">
+            Student Marks Summary
+          </Title>
+          <button
+            className=" cursor-pointer text-xl font-bold"
+            onClick={() => navigate("/")}
+          >
+            ✕
+          </button>
         </div>
-      ) : (
-        <Table
-          columns={columns}
-          dataSource={studentSummary.length > 0 ? studentSummary : []}
-          locale={{ emptyText: "No student data available." }}
-          onRow={(record) => ({
-            onClick: () => setSelectedStudent(record.student),
-          })}
-          pagination={{ pageSize: 5 }}
-          rowClassName="cursor-pointer hover:bg-gray-100 text-base py-3"
-        />
-      )}
 
-      <StudentDetailsModal
-        student={selectedStudent}
-        studentData={studentData}
-        onClose={() => setSelectedStudent(null)}
-      />
-    </div>
+        {/* Search Input */}
+        <Input.Search
+          placeholder="Search by Enrollment ID"
+          allowClear
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-4 w-full md:w-1/2"
+        />
+
+        {loading ? (
+          <div className="flex justify-center items-center h-32">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={studentSummary.length > 0 ? studentSummary : []}
+            locale={{ emptyText: "No student data available." }}
+            onRow={(record) => ({
+              onClick: () => setSelectedStudent(record.student),
+            })}
+            pagination={{ pageSize: 5 }}
+            rowClassName="cursor-pointer hover:bg-gray-100 text-base py-3"
+          />
+        )}
+
+        <StudentDetailsModal
+          student={selectedStudent}
+          studentData={studentData}
+          onClose={() => setSelectedStudent(null)}
+        />
+      </div>
+    </>
   );
 }
 
@@ -155,7 +179,11 @@ function StudentDetailsModal({ student, studentData, onClose }) {
 
   return (
     <Modal
-      title={<Title level={4} className="mb-0">Student Details: <Text strong>{student}</Text></Title>}
+      title={
+        <Title level={4} className="mb-0">
+          Student Details: <Text strong>{student}</Text>
+        </Title>
+      }
       open={!!student}
       onCancel={onClose}
       footer={null}

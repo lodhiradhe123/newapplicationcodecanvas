@@ -3,21 +3,23 @@ import "./index.css";
 
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
-import Home from "./components/home/Home";
-import Courses from "./components/corses/Courses";
+import Home from "./container/home/Home";
+import AdminDashboard from "./container/dashboard/AdminDashboard";
 import Login from "./components/login/LoginPage";
 import Signup from "./components/login/SignUp";
-import QuestionForm from "./components/upload questions/QuestionForm";
-import StudentMarks from "./components/answerSheet/AnswerSheet";
+import QuestionForm from "./container/upload questions/QuestionForm";
+import StudentMarks from "./container/answerSheet/AnswerSheet";
+import StudentProfile from "./components/profile/StudentProfile";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/studentMarks" exact element={<StudentMarks />} />
         <Route path="/questionForm" exact element={<QuestionForm />} />
+        <Route path="/studentMarks" exact element={<StudentMarks />} />
         <Route path="/signup" exact element={<Signup />} />
-        <Route path="/" exact element={<Courses />} />
+        <Route path="/studentProfile" exact element={<StudentProfile />} />
+        <Route path="/" exact element={<AdminDashboard />} />
       </Routes>
     </>
   );

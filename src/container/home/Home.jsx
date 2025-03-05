@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "../navbar/Navbar";
+import Navbar from "../../components/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { HiChevronDown, HiChevronUp } from "react-icons/hi";
