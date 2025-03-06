@@ -9,6 +9,7 @@ import {
   PlusCircleOutlined,
   BarChartOutlined,
   GiftOutlined,
+  FolderViewOutlined,
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import Navbar from "../../components/navbar/Navbar";
@@ -88,6 +89,14 @@ const AdminDashboard = () => {
         >
           <FileTextOutlined className="text-3xl text-purple-600" />
           <Text className="text-lg font-semibold">Answer Sheets</Text>
+        </motion.div>
+        <motion.div
+          className="p-4 bg-blue-100 rounded-lg flex items-center gap-4 cursor-pointer"
+          whileHover={{ scale: 1.05 }}
+          onClick={() => navigate("/viewpaper")}
+        >
+          <FolderViewOutlined className="text-3xl text-blue-600" />
+          <Text className="text-lg font-semibold">View Questions Set</Text>
         </motion.div>
       </div>
     </div>

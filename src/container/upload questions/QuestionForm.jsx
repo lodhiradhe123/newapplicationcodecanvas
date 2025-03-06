@@ -148,7 +148,11 @@ export default function QuestionForm() {
           </div>
 
           {questions.map((q) => (
-            <Card key={q.id} className="shadow-md">
+            <Card
+              key={q.id}
+              className="shadow-md"
+              style={{ marginBottom: "20px", backgroundColor: "#F1F0E9" }}
+            >
               <Space direction="vertical" size="middle" className="w-full">
                 <Title level={5}>Title (Technical, Reasoning, Aptitude)</Title>
                 <Input
@@ -159,26 +163,35 @@ export default function QuestionForm() {
                   placeholder="Enter Question Title"
                 />
 
-                <Title level={5}>Problem Level</Title>
-                <Select
-                  value={q.problem}
-                  onChange={(value) => updateQuestion(q.id, "problem", value)}
-                  className="w-full md:w-1/2"
-                >
-                  <Option value="Easy">Easy</Option>
-                  <Option value="Normal">Normal</Option>
-                  <Option value="Hard">Hard</Option>
-                </Select>
+                <div className=" w-full flex">
+                  <div className="w-full">
+                    <Title level={5}>Problem Level</Title>
+                    <Select
+                      value={q.problem}
+                      onChange={(value) =>
+                        updateQuestion(q.id, "problem", value)
+                      }
+                      className=" md:w-1/2"
+                    >
+                      <Option value="Easy">Easy</Option>
+                      <Option value="Normal">Normal</Option>
+                      <Option value="Hard">Hard</Option>
+                    </Select>
+                  </div>
 
-                <Title level={5}>Score</Title>
-                <Input
-                  type="number"
-                  value={q.score}
-                  onChange={(e) =>
-                    updateQuestion(q.id, "score", e.target.value)
-                  }
-                  placeholder="Score"
-                />
+                  <div className="w-full">
+                    <Title level={5}>Score</Title>
+                    <Input
+                      type="number"
+                      value={q.score}
+                      onChange={(e) =>
+                        updateQuestion(q.id, "score", e.target.value)
+                      }
+                      placeholder="Score"
+                      style={{}}
+                    />
+                  </div>
+                </div>
 
                 <Title level={5}>Enter Your Question</Title>
                 <Input.TextArea
@@ -190,17 +203,30 @@ export default function QuestionForm() {
                   rows={4}
                 />
 
-                <Title level={5}>Upload Image (Optional)</Title>
-                <Upload
-                  showUploadList={false}
-                  beforeUpload={(file) => {
-                    const url = URL.createObjectURL(file);
-                    updateQuestion(q.id, "image", url);
-                    return false;
-                  }}
-                >
-                  <Button icon={<UploadOutlined />}>Upload Image</Button>
-                </Upload>
+                <Title level={5}>Upload Image Or Paste Link (Optional)</Title>
+                <div className="flex gap-4">
+                  <Upload
+                    showUploadList={false}
+                    beforeUpload={(file) => {
+                      const url = URL.createObjectURL(file);
+                      updateQuestion(q.id, "image", url);
+                      return false;
+                    }}
+                  >
+                    <Button icon={<UploadOutlined />}>Upload Image</Button>
+                  </Upload>
+                  <Input
+                    size=""
+                    placeholder="Enter image url"
+                    style={{
+                      width: 700,
+                      display: "inline-block",
+                    }}
+                    onChange={(e) =>
+                      updateQuestion(q.id, "image", e.target.value)
+                    }
+                  />
+                </div>
                 {q.image && (
                   <img
                     src={q.image}
@@ -271,6 +297,7 @@ export default function QuestionForm() {
             type="primary"
             icon={<IoAddCircleOutline />}
             onClick={addQuestion}
+            className="mt-8"
           >
             Add New Question
           </Button>
